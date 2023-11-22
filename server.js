@@ -1,13 +1,22 @@
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
+const session = require('express-session');
 
 const app = express();
 const port = process.env.PORT || 8099;
 
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
+
+// Session middleware
+app.use(
+  session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 // MongoDB
 const uri = 'mongodb+srv://admin:admin@memos.2tgoxll.mongodb.net/?retryWrites=true&w=majority';
@@ -28,12 +37,10 @@ function getDB() {
   return db;
 }
 
-
 // Home page
 app.get('/', (req, res) => {
   res.render('home');
 });
-
 
 // Login page
 app.get('/auth/login', (req, res) => {
@@ -55,7 +62,6 @@ app.post('/auth/login', (req, res) => {
 
 // Logout
 app.get('/auth/logout', (req, res) => {
-  // Destroy user session or invalidate JWT token
   req.session.destroy();
   res.redirect('/');
 });
@@ -69,7 +75,6 @@ app.get('/auth/signup', (req, res) => {
 app.post('/auth/signup', (req, res) => {
   const { username, password } = req.body;
 
-  // Create a new user in the database
   if (username && password) {
     // Create user logic here
     res.redirect('/auth/login');
@@ -82,7 +87,6 @@ app.post('/auth/signup', (req, res) => {
 
 // Memo List
 app.get('/memo', (req, res) => {
-  // Fetch memos from the database
   const memos = db.collection('memos').find().toArray();
 
   res.render('memoList', { memos });
@@ -99,7 +103,6 @@ app.get('/memo/create', (req, res) => {
 app.post('/memo/create', (req, res) => {
   const { title, content } = req.body;
 
-  // Create a new memo in the database
   if (title && content) {
     // Create memo logic here
     res.redirect('/memo');
@@ -114,7 +117,6 @@ app.post('/memo/create', (req, res) => {
 app.get('/memo/:id', (req, res) => {
   const memoId = req.params.id;
 
-  // Fetch memo by ID from the database
   const memo = db.collection('memos').findOne({ _id: ObjectId(memoId) });
 
   res.render('view', { memo });
@@ -126,7 +128,6 @@ app.get('/memo/:id', (req, res) => {
 app.get('/memo/:id/edit', (req, res) => {
   const memoId = req.params.id;
 
-  // Fetch memo by ID from the database
   const memo = db.collection('memos').findOne({ _id: ObjectId(memoId) });
 
   res.render('edit', { memo });
@@ -137,7 +138,6 @@ app.post('/memo/:id/edit', (req, res) => {
   const memoId = req.params.id;
   const { title, content } = req.body;
 
-  // Update the memo in the database
   if (title && content) {
     // Update memo logic here
     res.redirect(`/memo/${memoId}`);
@@ -152,7 +152,6 @@ app.post('/memo/:id/edit', (req, res) => {
 app.post('/memo/:id/delete', (req, res) => {
   const memoId = req.params.id;
 
-  // Delete the memo from the database
   // Delete memo logic here
 
   res.redirect('/memo');
