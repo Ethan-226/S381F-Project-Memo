@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Memo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    p {
+      white-space: pre-wrap;
+    }
+
+    .edit-link,
+    .delete-link {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 16px;
+      background-color: #4caf50;
+      color: #fff;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+
+    .delete-link {
+      background-color: #f44336;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><%= memo.title %></h1>
+    <p><%= memo.content %></p>
+    <a class="edit-link" href="/memo/<%= memo._id %>/edit">Edit</a>
+    <a class="delete-link" href="/memo/<%= memo._id %>/delete">Delete</a>
+  </div>
+</body>
+</html>

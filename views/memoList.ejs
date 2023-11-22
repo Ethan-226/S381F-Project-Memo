@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Memo List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #Apologies for the incomplete response. Here's the rest of the code for the `memoList.ejs` template:
+
+```html
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    a {
+      color: #333;
+      text-decoration: none;
+    }
+
+    .create-link {
+      display: inline-block;
+      margin-top: 10px;
+      margin-right: 10px;
+      padding: 8px 16px;
+      background-color: #4caf50;
+      color: #fff;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+
+    .logout-link {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 16px;
+      background-color: #f44336;
+      color: #fff;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Memo List</h1>
+    <ul>
+      <% for (let memo of memos) { %>
+        <li><a href="/memo/<%= memo._id %>"><%= memo.title %></a></li>
+      <% } %>
+    </ul>
+    <a class="create-link" href="/memo/create">Create Memo</a>
+    <a class="logout-link" href="/auth/logout">Logout</a>
+  </div>
+</body>
+</html>
