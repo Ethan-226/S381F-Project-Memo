@@ -1,73 +1,104 @@
-Memo system
+Restaurant management system
 
-Group: 3
+Group: 11
 Name: 
-SO KIT FUNG (12937533),
+XX (00000000),
 yy (00000100)
 
-Application link: 
+Application link: https://projectsample381.render.com/
 
 ********************************************
 # Login
-The login feature allows users to authenticate and access the application.
+Through the login interface, each user can access the restaurant information management system by entering their username and password.
 
-- `GET /auth/login` - Renders the login page.
-- `POST /auth/login` - Handles the login logic. If the username and password are valid, it sets the user session and redirects to the memo page. Otherwise, it renders the login page with an error message.
+Each user has a userID and password;
+[
+	{userid: user1, password: cs381},
+	{userid: user2, password: cs381},
+	{suerid: user3, password: cs381}
+
+]
+
+After successful login, userid is stored in seesion.
 
 ********************************************
 # Logout
-The logout feature allows users to end their session and log out of the application.
+In the home page, each user can log out their account by clicking logout.
 
-- `GET /auth/logout` - Destroys the user session and redirects to the home page.
 ********************************************
 # CRUD service
--- Create memo form
+- Create
+-	A restaurant document may contain the following attributes with an example: 
+	1)	Restaurant Name (Shake Shack)
+	2)	Restaurant ID (00000003), restaurant id must be 8 digits
+	3)	Borough (Sha Tin)
+	4)	Street (null)
+	5)	Restaurant Telephone (26516828), telephone number must be 8 digits
+	6)	Cuisine (American)
+	7)	Description (... Very nice hamburger)
 
-- `GET /memo/create` - Renders the create memo form.
+Restaurant Name and Restaurant ID is mandatory, and other attributes are optional.
 
--- Handle memo creation logic
-
-- `POST /memo/create` - Handles the creation of a new memo. If the title and content are provided, it creates a new memo in the database and redirects to the memo page. Otherwise, it renders the create memo form with an error message.
+Create operation is post request, and all information is in body of request.
 
 ********************************************
 # CRUD service
 - Read
+-  There are two options to read and find restaurants list all information or searching by restaurant id.
 
-- Memo List
+1) List all information
+	display.ejs will be displayed with all restaurant ID;
+	clicking on restaurant ID, the details will be shown;
 
-- `GET /memo` - Retrieves the list of memos from the database and renders the memo list page with the memos.
-
-- View memo
-
-- `GET /memo/:id` - Retrieves a specific memo by ID from the database and renders the view memo page with the memo details.
+2) Searching by restaurant id
+	input id of restaurant you want to find (00000003);
+	id is in the body of post request, and in display.ejs restaurant id will be shown as link;
+	clicking on restaurant ID, the details will be displayed;
 
 ********************************************
 # CRUD service
 - Update
+-	The user can update the restaurant information through the details interface.
+-	Among the attribute shown above, Restaurant ID cannot be changed. Since restaurant ID is fixed, restaurant ID is searching criteria for updating information. 
 
-- Edit memo form
+-	A restaurant document may contain the following attributes with an example: 
+	1)	Restaurant Name (Shake Shack)
+	2)	Borough (Tung Chung)
+	3)	Street (Tat Tung Road)
+	4)	Restaurant Telephone (29871728), telephone number must be 8 digits
+	5)	Cuisine (American)
+	6)	Description (... Very nice hamburger)
 
-- `GET /memo/:id/edit` - Retrieves a specific memo by ID from the database and renders the edit memo form with the memo details.
-
-- Handle memo update logic
-
-- `POST /memo/:id/edit` - Handles the update of a memo. If the title and content are provided, it updates the memo in the database and redirects to the view memo page. Otherwise, it renders the edit memo form with an error message.
+	In example, we updated the borough, street and restaurant contact number.
 
 ********************************************
 # CRUD service
 - Delete
-
-- Handle memo deletion logic
-
-- `POST /memo/:id/delete` - Deletes a specific memo by ID from the database and redirects to the memo list page.
+-	The user can delete the restaurant information through the details interface.
 
 ********************************************
 # Restful
+In this project, there are three HTTP request types, post, get and delete.
+- Post 
+	Post request is used for insert.
+	Path URL: /api/item/restaurantID/:restaurantID
+	Test: curl -X POST -H "Content-Type: application/json" --data '{"name": "Taro & Tea", "restaurangID":"00000004"}'localhost:8099/api/item/restaurantID/00000004/name/Taro & Tea
 
-The application follows the principles of RESTful architecture for the memo CRUD operations.
+- Get
+	Get request is used for find.
+	Path URL: /api/item/restaurantID/:restaurantID
+	Test: curl -X GET http://localhost:8099/api/item/restaurantID/00000002
 
-- `GET /memo` - Retrieves the list of memos.
-- `GET /memo/:id` - Retrieves a specific memo by ID.
-- `POST /memo` - Creates a new memo.
-- `PUT /memo/:id` - Updates a specific memo by ID.
-- `DELETE /memo/:id` - Deletes a specific memo by ID.
+- Delete
+	Delete request is used for deletion.
+	Path URL: /api/item/restaurantID/:restaurantID
+	Test: curl -X DELETE localhost:8099/api/item/restaurantID/00000002
+
+For all restful CRUD services, login should be done at first.
+
+
+curl -X POST -H "Content-Type: application/json" --data '{"name": "Taro & Tea", "restaurangID":"00000004"}' http://localhost:8099/api/item/restaurantID/00000004
+
+curl -X GET http://localhost:8099/api/item/restaurantID/00000002
+
+curl -X DELETE http://localhost:8099/api/item/restaurantID/00000002

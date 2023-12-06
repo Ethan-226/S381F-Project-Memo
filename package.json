@@ -1,21 +1,22 @@
 {
-  "name": "Memo",
-  "version": "1.0.0",
-  "description": "COMPS381F project",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "keywords": [],
-  "author": "SO KIT FUNG",
-  "license": "MIT",
-  "dependencies": {
-	"cookie-session": "latest",
-    "express": "^4.17.1",
-    "mongoose": "^6.1.4",
-    "bcrypt": "^5.0.1",
-    "express-session": "^1.17.2",
-    "connect-flash": "^0.1.1",
-    "ejs": "^3.1.6"
-  }
+    "name": "server",
+    "description": "COMPS381F project",
+    "author": "Chen Weijie, Chen Zhanyi, Hau Hei Wan, Zhong Guzhi",
+    "version": "0.0.1",
+    "engines": {
+        "node": "^14.15.1"
+    },
+    "dependencies": {
+        "cookie-session": "latest",
+        "body-parser": "^1.18.3",
+        "ejs": "*",
+        "express": "*",
+        "mongodb": "*",
+        "assert": "^1.4.1"
+        
+    },
+    "engine": "node >= 12.0.0",
+    "scripts": {
+        "start": "node server.js"
+    }
 }
