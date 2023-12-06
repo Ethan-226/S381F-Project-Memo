@@ -1,7 +1,7 @@
 {
   "name": "Memo",
   "version": "1.0.0",
-  "description": "Your application description",
+  "description": "COMPS381F project",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -10,6 +10,7 @@
   "author": "SO KIT FUNG",
   "license": "MIT",
   "dependencies": {
+	"cookie-session": "latest",
     "express": "^4.17.1",
     "mongoose": "^6.1.4",
     "bcrypt": "^5.0.1",
