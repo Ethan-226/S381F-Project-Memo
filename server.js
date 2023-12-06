@@ -32,7 +32,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // Home page
 app.get('/', function(req, res){
-  res.redirect("/home");
+  res.redirect("home");
 });
 
 // Login page
