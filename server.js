@@ -44,7 +44,7 @@ app.get('/home', function(req, res){
 // Login page
 app.get('/login', function(req, res){
 	res.sendFile(__dirname + '/public/login.html');
-	res.render('/login');
+	res.render('login');
 });
 
 // Handle login logic
@@ -62,7 +62,9 @@ app.post('/login', function(req, res){
 });
 
 //Handle signup logic
-
+app.get('/signup', function(req,res){
+	res.render('signup');
+});
 
 // Logout
 app.get('/logout', function(req, res){
