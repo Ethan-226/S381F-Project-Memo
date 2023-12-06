@@ -1,83 +1,83 @@
-const assert = require('assert');
-
-const MongoClient = require('mongodb').MongoClient;
-const ObjectID = require('mongodb').ObjectID;
-
-const mongourl = 'mongodb+srv://admin:admin@memos.2tgoxll.mongodb.net/?retryWrites=true&w=majority'; 
-const dbName = 'test';
-
 const express = require('express');
-const bodyParser = require('body-parser');
+const { MongoClient, ObjectId } = require('mongodb');
+const session = require('express-session');
+
 const app = express();
-const SECRETKEY = 'cs381';
+const port = process.env.PORT || 8099;
 
-var usersinfo = new Array(
-    {name: "user1", password: "cs381"},
-    {name: "user2", password: "cs381"},
-    {name: "user3", password: "cs381"}
-);
-
-var documents = {};
-//Main Body
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
 app.set('view engine', 'ejs');
-app.use(session({
-    userid: "session",  
-    keys: [SECRETKEY],
-}));
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
-
-var usersinfo = new Array(
-    {name: "user1", password: "cs381"},
-    {name: "user2", password: "cs381"},
-    {name: "user3", password: "cs381"}
+// Session middleware
+app.use(
+  session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+  })
 );
+
+// MongoDB
+const uri = 'mongodb+srv://admin:admin@memos.2tgoxll.mongodb.net/?retryWrites=true&w=majority';
+const client = new MongoClient(uri);
+let db;
+
+async function connect() {
+  try {
+    await client.connect();
+    db = client.db();
+    console.log('Connected to the database');
+  } catch (error) {
+    console.error('Error connecting to the database:', error);
+  }
+}
+
+function getDB() {
+  return db;
+}
 
 // Home page
-app.get('/', function(req, res){
-  res.redirect("/home");
+app.get('/', (req, res) => {
+  res.render('home');
 });
 
 // Login page
-app.get('/login', function(req, res){
-	res.sendFile(__dirname + '/public/login.html');
-	res.render('login');
+app.get('/auth/login', (req, res) => {
+  res.render('login');
 });
 
 // Handle login logic
-app.post('/login', function(req, res){
-  for (var i=0; i<usersinfo.length; i++){
-        if (usersinfo[i].name == req.body.username && usersinfo[i].password == req.body.password) {
-        req.session.authenticated = true;
-        req.session.userid = usersinfo[i].name;
-        console.log(req.session.userid);
-        return res.status(200).redirect("/home");
-        }
-    }
-        console.log("Error username or password.");
-        return res.redirect("/");
+app.post('/auth/login', (req, res) => {
+  const { username, password } = req.body;
+
+  if (username === 'admin' && password === 'admin') {
+    req.session.isLoggedIn = true;
+    req.session.user = username;
+    res.redirect('/memo');
+  } else {
+    res.render('login', { error: 'Invalid username or password' });
+  }
 });
 
 // Logout
-app.get('/logout', function(req, res){
-	req.session = null;
-    req.authenticated = false;
-	res.redirect('/home');
+app.get('/auth/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/');
 });
 
 // Signup page
-app.get('/signup', (req, res) => {
+app.get('/auth/signup', (req, res) => {
   res.render('signup');
 });
 
 // Handle user registration logic
-app.post('/signup', (req, res) => {
+app.post('/auth/signup', (req, res) => {
   const { username, password } = req.body;
 
   if (username && password) {
     // Create user logic here
-    res.redirect('/login');
+    res.redirect('/auth/login');
   } else {
     res.render('signup', { error: 'Username and password are required' });
   }
