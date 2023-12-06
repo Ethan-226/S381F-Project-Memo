@@ -32,13 +32,19 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // Home page
 app.get('/', function(req, res){
-  res.redirect("home");
+  res.redirect("/home");
 });
+
+app.get('/home', function(req, res){
+	res.sendFile(__dirname + '/public/home.html');
+	res.render('/home');
+});
+
 
 // Login page
 app.get('/login', function(req, res){
 	res.sendFile(__dirname + '/public/login.html');
-	res.render('login');
+	res.render('/login');
 });
 
 // Handle login logic
@@ -52,8 +58,11 @@ app.post('/login', function(req, res){
         }
     }
         console.log("Error username or password.");
-        return res.redirect("/");
+        return res.redirect("/login");
 });
+
+//Handle signup logic
+
 
 // Logout
 app.get('/logout', function(req, res){

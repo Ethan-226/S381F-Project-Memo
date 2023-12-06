@@ -26,13 +26,17 @@
       text-align: center;
     }
 
-    a {
-      text-decoration: none;
-      color: #4caf50;
+    button[type="submit"] {
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
     }
 
-    a:hover {
-      color: #45a049;
+    button[type="submit"]:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
@@ -40,7 +44,10 @@
   <div class="container">
     <h1>Welcome to the Home Page</h1>
       <p>Hello, </p>
-      <p>Please <a href="/login">login</a> or <a href="/signup">signup</a>.</p>
+      <p>Please 
+	  <button type="submit"><form method="POST" action="/login">login</form></button> or 
+	  <button type="sumit"><form method="POST" action="/signup">signup</form></button>.</p>
+	  
   </div>
 </body>
 </html>
