@@ -10,7 +10,6 @@
   "author": "SO KIT FUNG",
   "license": "MIT",
   "dependencies": {
-    "cookie-session": "latest",
     "express": "^4.17.1",
     "mongoose": "^6.1.4",
     "bcrypt": "^5.0.1",
