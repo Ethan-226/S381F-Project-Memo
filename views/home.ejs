@@ -1,21 +1,46 @@
+<!-- home.ejs -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+  <meta charset="utf-8">
+  <title>Home</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    p {
+      text-align: center;
+    }
+
+    a {
+      text-decoration: none;
+      color: #4caf50;
+    }
+
+    a:hover {
+      color: #45a049;
+    }
+  </style>
 </head>
 <body>
-    <div class="jumbotron text-center">
-        <h1>Restaurant Information Management System</h1>
-    </div>
-    <div class="row ml-md-auto">
-        <a href="/create" role="button">Create New Restaurant Information</a> <br>
-        <a href="/find" role="button">Find Restaurant Information by restaurant ID</a> <br>
-        <a href="/list" role="button">Show all restaurant ID information</a> <br>
-        <a href="/logout" role="button">Logout</a>
-    </div>
-
+  <div class="container">
+    <h1>Welcome to the Home Page</h1>
+      <p>Hello, </p>
+      <p>Please <a href="/login">login</a> or <a href="/signup">signup</a>.</p>
+  </div>
 </body>
 </html>
