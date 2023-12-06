@@ -63,6 +63,7 @@ app.post('/login', function(req, res){
 
 //Handle signup logic
 app.get('/signup', function(req,res){
+	res.sendFile(__dirname + '/public/signup.html');
 	res.render('signup');
 });
 
