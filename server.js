@@ -37,7 +37,7 @@ app.get('/', function(req, res){
 
 app.get('/home', function(req, res){
 	res.sendFile(__dirname + '/public/home.html');
-	res.render('/home');
+	res.render('home');
 });
 
 
