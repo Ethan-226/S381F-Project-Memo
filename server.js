@@ -77,9 +77,9 @@ app.post('/login', function(req, res){
 });
 
 //Handle signup logic
-app.get('/home', function(req, res){
-	res.sendFile(__dirname + '/public/home.html');
-	res.render('home');
+app.get('/signup', function(req, res){
+	res.sendFile(__dirname + '/public/signup.html');
+	res.render('signup');
 });
 
 //signup
