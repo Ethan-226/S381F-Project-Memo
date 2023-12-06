@@ -29,14 +29,29 @@ app.use(session({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
+const createUser = function(db, createddocuments, callback){
+    const client = new MongoClient(mongourl);
+    client.connect(function(err) {
+        assert.equal(null, err);
+        console.log("Connected successfully to the MongoDB database server.");
+        const db = client.db(dbName);
 
+        db.collection('restaurants').insertOne(createddocuments, function(error, results){
+            if(error){
+            	throw error
+            };
+            console.log(results);
+            return callback();
+        });
+    });
+}
 // Home page
 app.get('/', function(req, res){
   res.redirect("/home");
 });
 
 app.get('/home', function(req, res){
-	res.sendFile(__dirname + '/public/home.html');
+	
 	res.render('home');
 });
 
@@ -63,13 +78,41 @@ app.post('/login', function(req, res){
 
 //Handle signup logic
 app.get('/signup', function(req,res){
-	res.sendFile(__dirname + '/public/signup.html');
+	
 	res.render('signup');
+});
+
+//signup
+app.post('/signup', function(req,res){
+	const client = new MongoClient(mongourl);
+    client.connect(function(err){
+        assert.equal(null, err);
+        console.log("Connected successfully to the DB server.");
+        const db = client.db(dbName);
+		
+	documents["_id"] = ObjectID;
+	documents["name"] = req.body.username;
+	documents["password"] = req.body.password;
+	
+	var addressdoc ={};
+        addressdoc['borough'] = req.body.borough;
+    if(req.body.street){
+        addressdoc['street'] = req.body.street;
+    }
+	
+	if(documents.name){
+		createUser(db, documents, function(docs){
+			client.close();
+                console.log("Closed DB connection");
+                return res.status(200).render('info', {message: "Document is created successfully!"});
+            });
+		
+	
 });
 
 //Handle memoList
 app.get('/memoList', function(req, res){
-	res.sendFile(_dirname+'/public/memoList.html');
+	
 	res.render('memoList');
 });
 
