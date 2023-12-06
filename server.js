@@ -54,7 +54,7 @@ app.post('/login', function(req, res){
         req.session.authenticated = true;
         req.session.userid = usersinfo[i].name;
         console.log(req.session.userid);
-        return res.status(200).redirect("/home");
+        return res.status(200).redirect("/memoList");
         }
     }
         console.log("Error username or password.");
@@ -66,6 +66,14 @@ app.get('/signup', function(req,res){
 	res.sendFile(__dirname + '/public/signup.html');
 	res.render('signup');
 });
+
+//Handle memoList
+app.get('/memoList', function(req, res){
+	res.sendFile(_dirname+'/public/memoList.html');
+	res.render('memoList');
+});
+
+
 
 // Logout
 app.get('/logout', function(req, res){
