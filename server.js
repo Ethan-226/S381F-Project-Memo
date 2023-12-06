@@ -3,14 +3,14 @@ const assert = require('assert');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 
-const mongourl = 'mongodb+srv://admin:admin@memos.2tgoxll.mongodb.net/?retryWrites=true&w=majority'; 
+const mongourl = 'mongodb+srv://test:test@test.icz3xa6.mongodb.net/?retryWrites=true&w=majority'; 
 const dbName = 'test';
 
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const session = require('cookie-session');
-const SECRETKEY = '45621';
+const SECRETKEY = 'cs381';
 
 var usersinfo = new Array(
     {name: "user1", password: "cs381"},
@@ -20,6 +20,7 @@ var usersinfo = new Array(
 
 var documents = {};
 //Main Body
+app.set('view engine', 'ejs');
 app.use(session({
     userid: "session",  
     keys: [SECRETKEY],
@@ -28,21 +29,157 @@ app.use(session({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
+const createDocument = function(db, createddocuments, callback){
+    const client = new MongoClient(mongourl);
+    client.connect(function(err) {
+        assert.equal(null, err);
+        console.log("Connected successfully to the MongoDB database server.");
+        const db = client.db(dbName);
 
-// Home page
+        db.collection('restaurants').insertOne(createddocuments, function(error, results){
+            if(error){
+            	throw error
+            };
+            console.log(results);
+            return callback();
+        });
+    });
+}
+
+const findDocument =  function(db, criteria, callback){
+    let cursor = db.collection('restaurants').find(criteria);
+    console.log(`findDocument: ${JSON.stringify(criteria)}`);
+    cursor.toArray(function(err, docs){
+        assert.equal(err, null);
+        console.log(`findDocument: ${docs.length}`);
+        return callback(docs);
+    });
+}
+
+const handle_Find = function(res, criteria){
+    const client = new MongoClient(mongourl);
+    client.connect(function(err) {
+        assert.equal(null, err);
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
+
+        findDocument(db, criteria, function(docs){
+            client.close();
+            console.log("Closed DB connection");
+            res.status(200).render('display', {nItems: docs.length, items: docs});
+        });
+    });
+}
+
+const handle_Edit = function(res, criteria) {
+    const client = new MongoClient(mongourl);
+    client.connect(function(err) {
+        assert.equal(null, err);
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
+
+        let documentID = {};
+        documentID['_id'] = ObjectID(criteria._id)
+        let cursor = db.collection('restaurants').find(documentID);
+        cursor.toArray(function(err,docs) {
+            client.close();
+            assert.equal(err,null);
+            res.status(200).render('edit',{item: docs[0]});
+
+        });
+    });
+}
+
+const handle_Details = function(res, criteria) {
+    const client = new MongoClient(mongourl);
+    client.connect(function(err) {
+        assert.equal(null, err);
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
+
+        let documentID = {};
+        documentID['_id'] = ObjectID(criteria._id)
+        findDocument(db, documentID, function(docs){ 
+            client.close();
+            console.log("Closed DB connection");
+            res.status(200).render('details', {item: docs[0]});
+        });
+    });
+}
+
+const updateDocument = function(criteria, updatedocument, callback){
+    const client = new MongoClient(mongourl);
+    client.connect(function(err){
+        assert.equal(null, err);
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
+        console.log(criteria);
+	console.log(updatedocument);
+	
+        db.collection('restaurants').updateOne(criteria,{
+                $set: updatedocument
+            }, function(err, results){
+                client.close();
+                assert.equal(err, null);
+                return callback(results);
+            }
+        );
+    });
+}
+
+const deleteDocument = function(db, criteria, callback){
+console.log(criteria);
+	db.collection('restaurants').deleteOne(criteria, function(err, results){
+	assert.equal(err, null);
+	console.log(results);
+	return callback();
+	});
+
+};
+
+const handle_Delete = function(res, criteria) {
+    const client = new MongoClient(mongourl);
+    client.connect(function(err) {
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
+	
+	let deldocument = {};
+	
+        deldocument["_id"] = ObjectID(criteria._id);
+        deldocument["ownerID"] = criteria.owner;
+        console.log(deldocument["_id"]);
+        console.log(deldocument["ownerID"]);
+        
+        deleteDocument(db, deldocument, function(results){
+            client.close();
+            console.log("Closed DB connection");
+            res.status(200).render('info', {message: "Document is successfully deleted."});
+        })     
+    });
+    //client.close();
+    //res.status(200).render('info', {message: "Document is successfully deleted."});
+}
+
 app.get('/', function(req, res){
-  res.redirect("/home");
+    if(!req.session.authenticated){
+        console.log("...Not authenticated; directing to login");
+        res.redirect("/login");
+    }else{
+    	res.redirect("/login");
+    }
+    console.log("...Hello, welcome back");
 });
 
-// Login page
+//login
 app.get('/login', function(req, res){
-	res.sendFile(__dirname + '/public/login.html');
-	res.render('login');
+    console.log("...Welcome to login page.")
+    res.sendFile(__dirname + '/public/login.html');
+    return res.status(200).render("login");
 });
 
-// Handle login logic
 app.post('/login', function(req, res){
-  for (var i=0; i<usersinfo.length; i++){
+    console.log("...Handling your login request");
+    for (var i=0; i<usersinfo.length; i++){
         if (usersinfo[i].name == req.body.username && usersinfo[i].password == req.body.password) {
         req.session.authenticated = true;
         req.session.userid = usersinfo[i].name;
@@ -54,106 +191,221 @@ app.post('/login', function(req, res){
         return res.redirect("/");
 });
 
-// Logout
 app.get('/logout', function(req, res){
-	req.session = null;
+    req.session = null;
     req.authenticated = false;
-	res.redirect('/home');
-});
-
-// Signup page
-app.get('/signup', (req, res) => {
-  res.render('signup');
-});
-
-// Handle user registration logic
-app.post('/signup', (req, res) => {
-  const { username, password } = req.body;
-
-  if (username && password) {
-    // Create user logic here
     res.redirect('/login');
-  } else {
-    res.render('signup', { error: 'Username and password are required' });
-  }
 });
 
-// Memo CRUD Functionality
-
-// Memo List
-app.get('/memo', (req, res) => {
-  const memos = db.collection('memos').find().toArray();
-
-  res.render('memoList', { memos });
+app.get('/home', function(req, res){
+    console.log("...Welcome to the home page!");
+    return res.status(200).render("home");
 });
 
-// Memo Creation
-
-// Create memo form
-app.get('/memo/create', (req, res) => {
-  res.render('create');
+app.get('/list', function(req, res){
+    console.log("Show all information! ");
+    handle_Find(res,req.query.docs);
+    
 });
 
-// Handle memo creation logic
-app.post('/memo/create', (req, res) => {
-  const { title, content } = req.body;
-
-  if (title && content) {
-    // Create memo logic here
-    res.redirect('/memo');
-  } else {
-    res.render('create', { error: 'Title and content are required' });
-  }
+app.get('/find', function(req, res){
+    return res.status(200).render("search");
 });
 
-// Memo Details
-
-// View memo
-app.get('/memo/:id', (req, res) => {
-  const memoId = req.params.id;
-
-  const memo = db.collection('memos').findOne({ _id: ObjectId(memoId) });
-
-  res.render('view', { memo });
+app.post('/search', function(req, res){
+    const client = new MongoClient(mongourl);
+    client.connect(function(err){
+        assert.equal(null, err);
+        console.log("Connected successfully to the DB server.");
+        const db = client.db(dbName);
+    
+    var searchID={};
+    searchID['restaurantID'] = req.body.restaurantID;
+    
+    if (searchID.restaurantID){
+    console.log("...Searching the document");
+    findDocument(db, searchID, function(docs){
+            client.close();
+            console.log("Closed DB connection");
+            res.status(200).render('display', {nItems: docs.length, items: docs});
+        });
+    }
+    else{
+    console.log("Invalid Entry - Restaurant ID is compulsory for searching!");
+    res.status(200).redirect('/find');
+    }         	
+	});
 });
 
-// Memo Editing
-
-// Edit memo form
-app.get('/memo/:id/edit', (req, res) => {
-  const memoId = req.params.id;
-
-  const memo = db.collection('memos').findOne({ _id: ObjectId(memoId) });
-
-  res.render('edit', { memo });
+app.get('/details', function(req,res){
+    handle_Details(res, req.query);
 });
 
-// Handle memo update logic
-app.post('/memo/:id/edit', (req, res) => {
-  const memoId = req.params.id;
-  const { title, content } = req.body;
+app.get('/edit', function(req,res) {
+    handle_Edit(res, req.query);
+})
 
-  if (title && content) {
-    // Update memo logic here
-    res.redirect(`/memo/${memoId}`);
-  } else {
-    res.render('edit', { error: 'Title and content are required' });
-  }
+app.get('/create', function(req, res){
+    return res.status(200).render("create");
 });
 
-// Memo Deletion
-
-// Handle memo deletion logic
-app.post('/memo/:id/delete', (req, res) => {
-  const memoId = req.params.id;
-
-  // Delete memo logic here
-
-  res.redirect('/memo');
+app.post('/create', function(req, res){
+    const client = new MongoClient(mongourl);
+    client.connect(function(err){
+        assert.equal(null, err);
+        console.log("Connected successfully to the DB server.");
+        const db = client.db(dbName);
+        
+        documents["_id"] = ObjectID;        
+	documents["restaurantID"] = req.body.restaurantID;	
+	documents['name']= req.body.name;
+	documents['cuisine']= req.body.cuisine;
+	documents['phone']= req.body.number;
+        documents['description']= req.body.description;
+        var addressdoc ={};
+        addressdoc['borough'] = req.body.borough;
+        if(req.body.street){
+            addressdoc['street'] = req.body.street;
+        }
+        documents['address']= addressdoc;
+        console.log("...putting data into documents");
+        
+        documents["ownerID"] = `${req.session.userid}`;
+        
+        if(documents.restaurantID){
+            console.log("...Creating the document");
+            createDocument(db, documents, function(docs){
+                client.close();
+                console.log("Closed DB connection");
+                return res.status(200).render('info', {message: "Document is created successfully!"});
+            });
+        } else{
+            client.close();
+            console.log("Closed DB connection");
+            return res.status(200).render('info', {message: "Invalid entry - Restaurant ID is compulsory!"});
+        }
+    });
+    //client.close();
+    //return res.status(200).render('info', {message: "Document created"}); 
 });
 
-// Start the server
-app.listen(port, async () => {
-  console.log(`Server is running on port ${port}`);
-  await connect();
+
+app.post('/update', function(req, res){
+    var updatedocument={};
+    const client = new MongoClient(mongourl);
+        client.connect(function(err){
+            assert.equal(null, err);
+            console.log("Connected successfully to server");
+            
+                if(req.body.name){
+                updatedocument["ownerID"] = `${req.session.userid}`
+                updatedocument['name']= req.body.name;
+                updatedocument['cuisine']= req.body.cuisine;
+                updatedocument['phone']= req.body.number;
+                updatedocument['description']= req.body.description;
+
+                var addressdoc ={};
+                addressdoc['borough'] = req.body.borough;
+                if(req.body.street){
+                    addressdoc['street'] = req.body.street;
+                }
+                updatedocument['address'] = addressdoc;
+
+        	let updateDoc = {};
+                updateDoc['restaurantID'] = req.body.postId;
+                console.log(updateDoc);
+
+                updateDocument(updateDoc, updatedocument, function(docs) {
+                    client.close();
+                    console.log("Closed DB connection");
+                    return res.render('info', {message: "Document is updated successfully!."});
+                    
+                })
+            }
+            else{
+            	return res.render('info', {message: "Invalid entry - Restaurant name is compulsory!"});
+            }
+    });
+    
 });
+
+app.get('/delete', function(req, res){
+    if(req.query.owner == req.session.userid){
+        console.log("...Hello !");
+        handle_Delete(res, req.query);
+    }else{
+        return res.status(200).render('info', {message: "Access denied - You don't have the access and deletion right!"}); 
+    }
+});
+
+//Restful
+//insert
+app.post('/api/item/restaurantID/:restaurantID', function(req,res) {
+    if (req.params.restaurantID) {
+        console.log(req.body)
+        const client = new MongoClient(mongourl);
+        client.connect(function(err){
+            assert.equal(null,err);
+            console.log("Connected successfully to server");
+            const db = client.db(dbName);
+            let newDocument = {};
+            newDocument['restaurantID'] = req.body.restaurantID;
+
+   	db.collection('restaurants').insertOne(newDocument, function(err,results){
+                assert.equal(err,null);
+                client.close()
+                res.status(200).end()
+                    });
+          
+                })
+            }
+        else {
+        res.status(500).json({"error": "missing restaurant ID"});
+    }
+})
+
+//find
+app.get('/api/item/restaurantID/:restaurantID', function(req,res) {
+    if (req.params.restaurantID) {
+        let criteria = {};
+        criteria['restaurantID'] = req.params.restaurantID;
+        const client = new MongoClient(mongourl);
+        client.connect(function(err) {
+            assert.equal(null, err);
+            console.log("Connected successfully to server");
+            const db = client.db(dbName);
+
+            findDocument(db, criteria, function(docs){
+                client.close();
+                console.log("Closed DB connection");
+                res.status(200).json(docs);
+            });
+        });
+    } else {
+        res.status(500).json({"error": "missing restaurant id"});
+    }
+})
+
+//delete`
+app.delete('/api/item/restaurantID/:restaurantID', function(req,res){
+    if (req.params.restaurantID) {
+        let criteria = {};
+        criteria['restaurantID'] = req.params.restaurantID;
+        const client = new MongoClient(mongourl);
+        client.connect(function(err){
+            assert.equal(null, err);
+            console.log("Connected successfully to server");
+            const db = client.db(dbName);
+
+            db.collection('restaurants').deleteMany(criteria, function(err,results) {
+                assert.equal(err,null)
+                client.close()
+                res.status(200).end();
+            })
+        });
+    } else {
+        res.status(500).json({"error": "missing restaurant id"});       
+    }
+})
+
+app.listen(app.listen(process.env.PORT || 8099));
