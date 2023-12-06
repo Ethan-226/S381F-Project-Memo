@@ -5,7 +5,7 @@ Name:
 SO KIT FUNG (12937533),
 yy (00000100)
 
-Application link: https://s381f-project-memo-iwvn.onrender.com
+Application link: 
 
 ********************************************
 # Login
