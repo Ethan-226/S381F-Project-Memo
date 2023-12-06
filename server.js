@@ -9,7 +9,6 @@ const dbName = 'test';
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
-const session = require('cookie-session');
 const SECRETKEY = 'cs381';
 
 var usersinfo = new Array(
